@@ -1,0 +1,11 @@
+formula,ic
+"div(div(log(div(X1, X0)), div(div(div(log(div(X1, X0)), div(X3, sub(X3, X1))), sub(X3, X1)), sub(X3, X0))), div(X3, sub(X3, X1)))",0.0042040052876248886
+"div(log(div(X1, X0)), div(div(X2, sub(X3, X1)), sub(X3, X0)))",0.006881018257418195
+"div(div(div(div(sub(X3, sub(X3, X1)), div(X3, sub(div(X3, sub(X3, X1)), X1))), sub(X3, X1)), div(div(X2, sub(X3, X1)), sub(X3, X0))), div(X3, sub(X3, X1)))",-0.0035409899119287686
+"div(div(div(div(sub(X3, X1), div(X3, div(X2, sub(X3, X1)))), sub(X3, X1)), div(div(X2, sub(X3, X1)), sub(X3, X0))), div(X3, sub(X3, X1)))",0.0012601483043434458
+"div(log(div(X1, X0)), div(X2, sub(X3, X1)))",-0.0009918720118651542
+"div(div(div(div(sub(X3, sub(X3, X1)), div(X3, sub(X3, X1))), div(X1, sub(X3, X1))), div(div(X2, sub(X3, X1)), sub(X3, X0))), div(X3, sub(X3, X1)))",0.0006055836393598976
+"div(div(div(sub(X3, X1), div(X3, sub(X3, X1))), X3), div(X3, sub(X3, X1)))",-0.045535771206681085
+"div(div(div(div(div(sub(X3, X1), div(X3, sub(X3, X1))), X3), div(X3, sub(X3, X1))), div(X3, sub(X3, X1))), div(X3, sub(X3, X1)))",-0.043349601895714844
+"div(div(log(div(X1, X0)), div(X3, div(X1, X0))), div(X3, sub(X3, X1)))",-0.00025120797721951655
+"div(div(div(log(div(X1, X3)), div(X3, sub(X3, X1))), div(X3, sub(X3, X1))), div(X3, sub(X3, X1)))",-0.04521843365333775

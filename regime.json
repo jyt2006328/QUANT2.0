@@ -1,0 +1,12 @@
+{
+    "timestamp": "2025-11-26 18:50:00",
+    "market_mode": "chop",
+    "risk_preference": "conservative",
+    "focus_assets": [
+        "BTC/USDT:USDT",
+        "ETH/USDT:USDT",
+        "SOL/USDT:USDT"
+    ],
+    "leverage_suggestion": 1.5,
+    "reasoning": "Surf AI Report: Extreme Fear (Index 12). Market ranging with low liquidity. BTC rebound faces resistance at $88k. Action: Conservative Long, avoid shorts, wait for confirmation."
+}
