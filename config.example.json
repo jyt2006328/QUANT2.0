@@ -1,0 +1,66 @@
+{
+    "system_status": "active",
+    "dry_run": false,
+    "symbols": [
+        "BTC/USDT:USDT",
+        "ETH/USDT:USDT",
+        "SOL/USDT:USDT",
+        "AVAX/USDT:USDT",
+        "DOGE/USDT:USDT",
+        "XRP/USDT:USDT",
+        "BNB/USDT:USDT",
+        "AAVE/USDT:USDT"
+    ],
+    "timeframe_low": "1h",
+    "timeframe_high": "5m",
+    "leverage_limit": 5,
+    "target_vol": 2.0,
+    "heartbeat": 60,
+    "strategy_allocation": {
+        "trend_weight": 0.8,
+        "trend_cap": 0.3,
+        "pair_weight": 0.2,
+        "basket_weight": 0.1,
+        "sniper_weight": 0.0,
+        "sniper_cap": 0.1,
+        "resonance_weight": 0.0,
+        "resonance_cap": 0.15,
+        "qingyun_weight": 0.0,
+        "qingyun_cap": 0.2,
+        "ai_weight": 0.0,
+        "ai_cap": 0.0
+    },
+    "optimizer_config": {
+        "risk_aversion": 1.0,
+        "turnover_cost": 0.001
+    },
+    "trailing_stop_multiplier": 4.0,
+    "pairs_config": [
+        [
+            "ETH/USDT:USDT",
+            "BTC/USDT:USDT"
+        ],
+        [
+            "SOL/USDT:USDT",
+            "ETH/USDT:USDT"
+        ]
+    ],
+    "basket_config": {
+        "main": "BTC/USDT:USDT",
+        "alts": [
+            "ETH/USDT:USDT",
+            "SOL/USDT:USDT",
+            "AVAX/USDT:USDT",
+            "DOGE/USDT:USDT",
+            "XRP/USDT:USDT",
+            "BNB/USDT:USDT",
+            "AAVE/USDT:USDT"
+        ]
+    },
+    "blacklist": [],
+    "dingtalk": {
+        "enabled": true,
+        "webhook": "",
+        "secret": ""
+    }
+}

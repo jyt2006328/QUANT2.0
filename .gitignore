@@ -22,3 +22,4 @@ logs/
 
 # (可选) 如果你不想上传 API Key，把 config.json 也加进去
 # config.json
+config.json
