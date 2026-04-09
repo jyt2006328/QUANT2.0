@@ -1,0 +1,47 @@
+1. 基于WebSocket获取Level-2 Orderbook数据
+对应文件：data/stream.py
+核心代码位置：
+•	BinanceDataStream._connect() (第32-41行)：构建多数据流订阅链接。
+•	BinanceDataStream._on_message() (第64-68行)：解析深度数据。
+•	BinanceDataStream.get_order_imbalance() (第118-128行)：订单簿失衡指标计算。
+实现思路：
+系统采用事件驱动（Event-Driven）架构，通过长连接实时监听币安 wss://fstream.binance.com/stream 的推送。在订阅字符串中引入了 {symbol}@depth5 频道，以获取实时的 Level-2 订单簿切片（前5档买卖盘）。
+获取数据后，系统将其缓存至内存字典 self.orderbooks 中，并暴露出微观结构特征计算接口，例如订单簿失衡度（Order Imbalance）的数学表达为：
+$$Imbalance = \frac{Q_{bid} - Q_{ask}}{Q_{bid} + Q_{ask} + \epsilon}$$
+其中 $Q_{bid}$ 和 $Q_{ask}$ 分别代表最优买单和卖单的挂单量，该特征可为后续的高频Alpha模型提供微观流动性信息。
+2. 分析实现被动挂单优化 (Maker策略)
+对应文件：utils/maker.py
+核心代码位置：
+•	MakerManager.execute_order() -> Phase A: 尝试 Maker 挂单 (第23-63行)。
+•	Phase B: 市价兜底 (Taker Fallback) (第66-77行)。
+实现思路：
+交易执行模块采用了“限价追单（Limit Chase）+ 市价兜底”的混合算法以优化交易成本。
+1.	挂单捕捉：获取当前的最优买一价（Bid）或卖一价（Ask），以此价格下达限价单（Limit Order），试图以 Maker 身份成交并捕获手续费返还或降低滑点。
+2.	状态轮询与撤单重置：订单发出后等待指定的秒数（wait_seconds），随后查询订单状态（fetch_order）。若未完全成交且剩余量大于阈值（$V_{remaining} > V_{total} \times 0.05$），则撤销原订单，重新获取最新盘口价格进行新一轮挂单，最多尝试 max_attempts 次。
+3.	流动性保障：若达到最大尝试次数仍未完成目标头寸，系统将切换为市价单（Market Order）强行吃单（Taker），以确保策略信号不产生过度延迟（执行确定性优先于成本优化）。
+3. 构建特征库与非线性建模 (Feature Library & XGBoost)
+对应文件：
+•	特征库：models/factors.py
+•	模型：models/trainer.py
+核心代码位置：
+•	FactorFactory.calculate_factors() (第23-144行)：TA-Lib与Alpha101特征衍生。
+•	FactorFactory.lag() (第12-16行)：防未来函数算子。
+•	ModelTrainer.__init__() 及 train() (第16-24, 48-61行)：XGBoost超参数定义与训练逻辑。
+实现思路：
+•	特征衍生：利用高低收开（OHLC）和成交量数据，构建了动量（Momentum）、趋势（Trend）、波动率（Volatility）、成交量异常以及 Alpha101 风格因子（如量价相关系数 CORR_PV_10、换手率代理 ILLIQ）。
+•	无偏性保证：强制应用了滞后算子（Lag Operator），确保 $T$ 时刻的特征输入仅依赖 $T-1$ 时刻及以前的信息：
+$$X_{t} = f(O_{t-1}, H_{t-1}, L_{t-1}, C_{t-1}, V_{t-1})$$
+这从底层逻辑上杜绝了回测中的未来数据泄露（Look-ahead Bias）。
+•	模型构建：系统引入了基于梯度提升树（GBDT）的 XGBoost 算法捕捉高维特征间的非线性交互。目标函数设定为 reg:squarederror，通过限制树深（max_depth: 6）并引入特征与样本双重随机下采样（subsample: 0.8, colsample_bytree: 0.8）来抑制低信噪比环境下的过拟合现象。
+4. 采用 Walk-Forward Analysis 评估稳健性
+对应文件：models/trainer.py
+核心代码位置：
+•	ModelTrainer.split_data() (第26-38行)：严禁Shuffle的时序切分。
+•	ModelTrainer.evaluate() (第65-88行)：基于Spearman的Rank IC评估。
+实现思路：
+在时序数据挖掘中，传统的交叉验证（Cross-Validation）会破坏时间连续性。系统实现了严格的前向步进验证（Walk-Forward Analysis）。
+1.	样本切分：按照时间戳硬切分数据集（$T_{train} < T_{valid}$），严格模拟实盘时间流向，评估模型在未知分布上的泛化能力。
+2.	效用度量：在测试集上不直接采用 MSE 作为评估指标，而是计算模型预测分数与真实收益率之间的斯皮尔曼秩相关系数（Spearman Rank IC）。针对任意截面周期 $t$，信息系数定义为：
+$$IC_t = \rho_{spearman}(Rank(\hat{Y}_t), Rank(Y_t))$$
+随后统计整体均值（Mean Rank IC）与信息比率（$IR = \frac{\overline{IC}}{\sigma_{IC}}$）来判定模型的绝对预测能力与稳定性。若均值 $IC > 0.03$，则视为具备统计显著性的有效 Alpha 模型。
+
